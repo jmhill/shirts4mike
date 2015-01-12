@@ -322,4 +322,25 @@ function get_products_all() {
     return $products;
 }
 
+/* Returns an array of product information for product that matches $sku.
+ * Returns false if no match
+ */
+
+function get_product_single ($sku) {
+    require(ROOT_PATH . "inc/database.php");
+
+    try {
+        $results = $db->prepare("SELECT name, price, img, sku, paypal FROM products WHERE sku = ?");
+        $results->bindParam(1, $sku);
+        $results->execute();
+    } catch (Exception $e) {
+        echo "Data could not be retrieved from the database.";
+        exit;
+    }
+
+    $product = $results->fetch(PDO::FETCH_ASSOC);
+
+    return $product;
+}
+
 ?>
