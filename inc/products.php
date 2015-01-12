@@ -73,6 +73,7 @@ function get_products_subset($positionStart, $positionEnd) {
  * @return   array           the full list of products
  */
 function get_products_all() {
+    /*
     $products = array();
     $products[101] = array(
     	"name" => "Logo Shirt, Red",
@@ -306,7 +307,18 @@ function get_products_all() {
     foreach ($products as $product_id => $product) {
         $products[$product_id]["sku"] = $product_id;
     }
+    */
+    require(ROOT_PATH . "inc/database.php");
 
+    try {
+        $results = $db->query("SELECT name, price, img, sku, paypal FROM products ORDER BY sku ASC");
+    } catch (Exception $e) {
+        echo "Data could not be retrieved";
+        exit;
+    }
+
+    $products = $results->fetchAll(PDO::FETCH_ASSOC);
+    
     return $products;
 }
 
