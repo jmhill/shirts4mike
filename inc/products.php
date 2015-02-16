@@ -6,18 +6,21 @@
                              the most recent product is the last one in the array
  */
 function get_products_recent() {
-    $recent = array();
-    $all = get_products_all();
+    require(ROOT_PATH . "inc/database.php");
 
-    $total_products = count($all);
-    $position = 0;
-    
-    foreach($all as $product) {
-        $position = $position + 1;
-        if ($total_products - $position < 4) {
-            $recent[] = $product;
-        }
+    try {
+        $results = $db->query("
+            SELECT name, price, img, sku, paypal
+            FROM products
+            ORDER BY sku DESC 
+            LIMIT 4");
+    } catch (Exception $e) {
+        echo "Could not retrieve information from database.";
+        exit;
     }
+
+    $recent = $results->fetchAll(PDO::FETCH_ASSOC);
+    $recent = array_reverse($recent);
     return $recent;
 }
 
