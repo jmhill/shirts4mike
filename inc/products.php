@@ -68,16 +68,26 @@ function get_products_count() {
  * @return   array           the list of products that correspond to the start and end positions
  */
 function get_products_subset($positionStart, $positionEnd) {
-    $subset = array();
-    $all = get_products_all();
+    $offset = $positionStart - 1;
+    $rows = $positionEnd - $positionStart + 1;
 
-    $position = 0;
-    foreach($all as $product) {
-        $position += 1;
-        if ($position >= $positionStart && $position <= $positionEnd) {
-            $subset[] = $product;
-        }
+    require(ROOT_PATH . "inc/database.php");
+
+    try {
+        $results = $db->prepare("
+            SELECT name, price, img, sku, paypal
+            FROM products
+            ORDER BY sku
+            LIMIT ?, ?");
+        $results->bindParam(1, $offset, PDO::PARAM_INT);
+        $results->bindParam(2, $rows, PDO::PARAM_INT);
+        $results->execute();
+    } catch (Exception $e) {
+        echo "Information could not be retrieved from database.";
+        exit;
     }
+
+    $subset = $results->fetchAll(PDO::FETCH_ASSOC);
     return $subset;
 }
 
