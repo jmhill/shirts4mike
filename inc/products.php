@@ -30,15 +30,23 @@ function get_products_recent() {
  * @return   array           a list of the products that contain the search term in their name
  */
 function get_products_search($s) {
-    $results = array();
-    $all = get_products_all();
+    require(ROOT_PATH . "inc/database.php");
 
-    foreach($all as $product) {
-        if (stripos($product["name"],$s) !== false) {
-            $results[] = $product;
-        }
+    try {
+        $results = $db->prepare("
+            SELECT name, price, img, sku, paypal
+            FROM products
+            WHERE name LIKE ?
+            ORDER BY sku");
+        $results->bindValue(1, "%" . $s . "%");
+        $results->execute();
+    } catch (Exception $e) {
+        echo "There was an error. oops.";
+        exit;
     }
-    return $results;
+    
+    $matches = $results->fetchAll(PDO::FETCH_ASSOC);
+    return $matches;
 }
 
 /*
